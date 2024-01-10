@@ -1,0 +1,15 @@
+name: MV2T
+channels:
+  - pytorch
+  - defaults
+  - conda-forge
+dependencies:
+  - pip=23.3.2
+  - python=3.9.16
+  - ffmpeg=5.1.2
+  - opencv=4.6.0
+  - pyqt=5.15.9
+  - tqdm=4.65.0
+  - pip:
+    - torch==2.1.2
+    - torchvision==0.16.2
