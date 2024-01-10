@@ -1,2 +1,17 @@
 # MeterVideo2Txt
-To convert digital meter readings from video to text. This is useful for those who needs logs from standalone devices. All you need is to record a video of your reading. Relies on AI for OCR.
+## Introduction
+Logs digital meter readings from standalone devices from video. 
+
+All you need is to record a video of your reading.
+
+This project will convert video of oximetry readings into logs as a use case.
+Internally, it relies on AI for OCR.
+
+## Usage
+TODO
+
+## Installation
+TODO
+
+### Requirements
+TODO
