@@ -1,4 +1,7 @@
 # MeterVideo2Txt
+
+## Work in Progress!!
+
 ## Introduction
 Logs digital meter readings from standalone devices from video. 
 
