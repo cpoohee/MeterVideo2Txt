@@ -20,6 +20,7 @@ dependencies:
   - conda-forge::mmdet=3.1.0
   - pip:
     - mmocr==1.0.1
+    - pytest
 
 # CUDA install
 # https://gist.github.com/MihailCosmin/affa6b1b71b43787e9228c25fe15aeba
