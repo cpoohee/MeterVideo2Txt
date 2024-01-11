@@ -18,6 +18,7 @@ dependencies:
   - conda-forge::mmengine=0.9.1
   - conda-forge::mmcv=2.0.0  # still required recompiling!
   - conda-forge::mmdet=3.1.0
+  - huggingface::transformers=4.33.3
   - pip:
     - mmocr==1.0.1
     - pytest
