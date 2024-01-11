@@ -8,15 +8,15 @@ dependencies:
   - python=3.9.16
   - numpy=1.26.3
 #  - ffmpeg=5.1.2
-#  - opencv=4.6.0
-#  - pyqt=5.15.9
+  - fastai::opencv-python-headless=4.6.0
+  - conda-forge::pyqt=5.15.9
 #  - tqdm=4.65.0
   - pytorch=2.0.0
   - torchvision=0.15.0
   - pytorch-cuda=11.8
   - conda-forge::openmim=0.3.7
   - conda-forge::mmengine=0.9.1
-  - conda-forge::mmcv=2.0.0  # still requried recompiling!
+  - conda-forge::mmcv=2.0.0  # still required recompiling!
   - conda-forge::mmdet=3.1.0
   - pip:
     - mmocr==1.0.1
