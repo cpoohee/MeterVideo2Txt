@@ -43,7 +43,7 @@ class WordMatch:
     def add_keyword(self, word):
         if word not in self.word_list:
             self.word_list.append(word)
-    def delete_keyword(self, word):
+    def remove_keyword(self, word):
         if word in self.word_list:
             self.word_list.remove(word)
     def match_to_keyword(self, query_word, threshold=0.80):
