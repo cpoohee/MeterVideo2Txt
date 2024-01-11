@@ -2,7 +2,8 @@ import numpy as np
 from WordMatch import WordMatch
 class KeyInfor:
     """
-    Parses OCR extracted text and returns predicted Key Information
+    Parses OCR extracted text and returns predicted Key Information.
+    Uses historical position of keywords to heuristically predict expected word locations.
     """
     def __init__(self):
         self.word_match = WordMatch()
