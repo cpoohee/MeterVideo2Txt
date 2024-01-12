@@ -4,6 +4,9 @@ from filterpy.common import Q_discrete_white_noise
 from filterpy.kalman import KalmanFilter
 
 class FilterCoord:
+    """
+    2D Kalman Filter for pixel coordinates with preselected parameters
+    """
     def __init__(self, x, y, dt=0.0333, Q_std=0.04, var=5.0):
         """
         :param x: x position
