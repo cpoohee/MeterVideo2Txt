@@ -20,19 +20,21 @@ class KeyInfor:
         pred_poly_list = pred['det_polygons']
 
         interest_word = []
+        interest_word_score = []
         original_word = []
         interest_word_center = []
 
         for idx, pred_word in enumerate(pred_text_list):
             clean_word = pred_word.replace('<UKN>', '')
-            matched_word = self.word_match.match_to_keyword(clean_word, threshold)
+            matched_word, matched_score = self.word_match.match_to_keyword(clean_word, threshold)
             if matched_word is not None:
                 xc, yc = self.polygon_center(pred_poly_list[idx])
                 interest_word.append(matched_word)
                 interest_word_center.append([xc, yc])
                 original_word.append(pred_word)
+                interest_word_score.append(matched_score)
 
-        return interest_word, interest_word_center, original_word
+        return interest_word, interest_word_center, original_word, interest_word_score
 
     def polygon_center(self, poly_list):
         listX = poly_list[1::2]
