@@ -58,9 +58,9 @@ class WordMatch:
                 matched_word = word
 
         if max_score > threshold and matched_word is not None:
-            return matched_word
+            return matched_word, score
         else:
-            return None
+            return None, None
 
     def word_embedding(self, words, idx=0):
         return self.get_word_vector(words, idx)
