@@ -37,8 +37,8 @@ class KeyInfor:
         return interest_word, interest_word_center, original_word, interest_word_score
 
     def polygon_center(self, poly_list):
-        listX = poly_list[1::2]
-        listY = poly_list[::2]
+        listY = poly_list[1::2]
+        listX = poly_list[::2]
         xbar = np.mean(listX)
         ybar = np.mean(listY)
         return int(xbar), int(ybar)
