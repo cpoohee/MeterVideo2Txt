@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from VideoFeeder import VideoFeeder
 from VideoScene import VideoScene
+from OCR import OCR
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -95,6 +96,8 @@ class MainWindow(QMainWindow):
         # self.setFixedSize(geometry.width() * 0.8, geometry.height() * 0.7)
 
         self.feeder = VideoFeeder()
+        self.ocr = OCR()
+
 
     def load_video(self):
         options = QFileDialog.Options()
@@ -121,7 +124,8 @@ class MainWindow(QMainWindow):
 
     def refresh_video(self):
         success, cv_img = self.feeder.grab_frame(self.frame_slider.value())
-        self.video_scene.update_cvImg(cv_img)
+        pred = self.ocr.predict(cv_img)
+        self.video_scene.update_screen(cv_img, pred)
 
     def no_rotation_video(self):
         self.feeder.set_rotate(None)
