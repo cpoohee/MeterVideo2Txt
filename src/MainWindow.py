@@ -70,6 +70,7 @@ class MainWindow(QMainWindow):
         self.video_scene = VideoScene()
         view = QGraphicsView(self.video_scene)
         layout.addWidget(view)
+        self.video_scene.clicked_signal.connect(self.handle_poly_clicked)
 
         # slider stuff
         slider_widget = QWidget(self)
@@ -113,6 +114,10 @@ class MainWindow(QMainWindow):
             self.frame_slider.setTickPosition(0)
             self.rotation_group.setEnabled(True)
             self.slider_released()
+
+    @pyqtSlot(str, float, float, float)
+    def handle_poly_clicked(self, text, cx, cy, area):
+        print(text)
 
     def update_slider_value(self, value):
         self.slider_label.setText(f'{value}')
