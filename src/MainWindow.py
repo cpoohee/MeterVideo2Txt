@@ -6,6 +6,7 @@ from PyQt5.QtCore import *
 from VideoFeeder import VideoFeeder
 from VideoScene import VideoScene
 from OCR import OCR
+from ValueTracker import ValueTrackerQTable
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -69,7 +70,7 @@ class MainWindow(QMainWindow):
         # Display video frames using VideoScene
         self.video_scene = VideoScene()
         view = QGraphicsView(self.video_scene)
-        layout.addWidget(view)
+        layout.addWidget(view, stretch = 10)
         self.video_scene.clicked_signal.connect(self.handle_poly_clicked)
 
         # slider stuff
@@ -85,8 +86,10 @@ class MainWindow(QMainWindow):
         slider_layout.addWidget(self.slider_label)
         slider_widget.setLayout(slider_layout)
 
-        layout.addWidget(slider_widget)
-        layout.addWidget(QLabel("trackers"))
+        layout.addWidget(slider_widget, stretch = 0)
+
+        self.value_tracker_table = ValueTrackerQTable(1)
+        layout.addWidget(self.value_tracker_table, stretch = 1)
 
         # finalise widget
         main_widget.setLayout(layout)
@@ -113,11 +116,25 @@ class MainWindow(QMainWindow):
             self.frame_slider.setRange(0, self.feeder.max_frame() - 1)
             self.frame_slider.setTickPosition(0)
             self.rotation_group.setEnabled(True)
+
+            self.value_tracker_table.reset_valuetracker_framesize(self.feeder.max_frame())
+
+
             self.slider_released()
 
     @pyqtSlot(str, float, float, float)
-    def handle_poly_clicked(self, text, cx, cy, area):
-        print(text)
+    def handle_poly_clicked(self, value, cx, cy, area):
+        label, ok = QInputDialog().getText(self, "QInputDialog().getText()",
+                                              "Label:", QLineEdit.Normal)
+        if ok:
+            if self.value_tracker_table.is_label_exists(label):
+                dlg = QMessageBox(self)
+                dlg.setWindowTitle("Warning!")
+                dlg.setText("Label already exists!")
+                dlg.exec()
+            else:
+                self.value_tracker_table.add_label(label, cx, cy, area, value, self.frame_slider.value())
+                self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def update_slider_value(self, value):
         self.slider_label.setText(f'{value}')
@@ -125,6 +142,7 @@ class MainWindow(QMainWindow):
     def slider_released(self):
         # to update video
         self.refresh_video()
+        self.value_tracker_table.view_valuetracker(self.frame_slider.value())
         self.statusBar().showMessage(f'released at {self.frame_slider.value()}')
 
     def refresh_video(self):

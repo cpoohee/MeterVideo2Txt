@@ -37,15 +37,6 @@ class QGraphicsPolygonItemHovers (QGraphicsPolygonItem):
         self.setPen(pen)
         self.update()
 
-    # def calculate_area(self):
-    #     area = 0
-    #     for i in range(self.polygon().size()):
-    #         p1 = self.polygon()[i]
-    #         p2 = self.polygon()[(i + 1) % self.polygon().size()]
-    #         d = p1.x() * p2.y() - p2.x() * p1.y()
-    #         area += d
-    #     return abs(area) / 2
-
     def get_centroid_poly(self):
         """https://en.wikipedia.org/wiki/Centroid#Of_a_polygon"""
         N = self.polygon().size()
