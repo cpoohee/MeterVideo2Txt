@@ -21,11 +21,10 @@ TODO
 
 
 ## TODO list
-- pick area of interest
-- create a label for it, store in table
-- extract detected text
 - track area of interest
-- "Process" button to continue extract and save detected text
+- allow tracking based on the last available coordinates and known polygon size.
+- "Process" button to continue extract 
+- "Export" button to save detected text and labels
 
 ### Potential issues
 - 2 or more values might be detected within the same bounding polygon. 
