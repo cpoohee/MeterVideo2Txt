@@ -86,10 +86,21 @@ class MainWindow(QMainWindow):
         slider_layout.addWidget(self.slider_label)
         slider_widget.setLayout(slider_layout)
 
-        layout.addWidget(slider_widget, stretch = 0)
+        layout.addWidget(slider_widget, stretch = 1)
 
         self.value_tracker_table = ValueTrackerQTable(1)
         layout.addWidget(self.value_tracker_table, stretch = 1)
+
+        self.buttons_widget = QWidget(self)
+        buttons_layout = QHBoxLayout()
+        self.track_next_button = QPushButton("Track Next Frame")
+        self.track_next_button.clicked.connect(self.track_next_button_clicked)
+        self.process_all_button = QPushButton("Process All")
+        buttons_layout.addWidget(self.track_next_button)
+        buttons_layout.addWidget(self.process_all_button)
+        self.buttons_widget.setLayout(buttons_layout)
+        self.buttons_widget.setDisabled(True)
+        layout.addWidget(self.buttons_widget)
 
         # finalise widget
         main_widget.setLayout(layout)
@@ -116,6 +127,7 @@ class MainWindow(QMainWindow):
             self.frame_slider.setRange(0, self.feeder.max_frame() - 1)
             self.frame_slider.setTickPosition(0)
             self.rotation_group.setEnabled(True)
+            self.buttons_widget.setEnabled(True)
 
             self.value_tracker_table.reset_valuetracker_framesize(self.feeder.max_frame())
 
@@ -140,7 +152,7 @@ class MainWindow(QMainWindow):
 
     def slider_released(self):
         # to update video
-        self.refresh_video()
+        _ = self.refresh_video()
         self.value_tracker_table.view_valuetracker(self.frame_slider.value())
         self.statusBar().showMessage(f'released at {self.frame_slider.value()}')
 
@@ -148,6 +160,7 @@ class MainWindow(QMainWindow):
         success, cv_img = self.feeder.grab_frame(self.frame_slider.value())
         pred = self.ocr.predict(cv_img)
         self.video_scene.update_screen(cv_img, pred)
+        return pred
 
     def no_rotation_video(self):
         self.feeder.set_rotate(None)
@@ -164,3 +177,12 @@ class MainWindow(QMainWindow):
     def rotate_ac90_video(self):
         self.feeder.set_rotate(VideoFeeder.ROTATE_90_COUNTERCLOCKWISE)
         self.refresh_video()
+
+    def track_next_button_clicked(self):
+        if self.frame_slider.value() < self.feeder.max_frame():
+            self.frame_slider.setValue(self.frame_slider.value() + 1)
+            pred = self.refresh_video()
+            # do filtering in value tracker and add at value + 1
+            self.value_tracker_table.track_labels(pred, self.frame_slider.value())
+            # by now, new values shd be updated in the value tracker
+            self.value_tracker_table.view_valuetracker(self.frame_slider.value())
