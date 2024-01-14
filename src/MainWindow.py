@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
     def load_video(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+        fileName, _ = QFileDialog.getOpenFileName(self, "Load Video File", "",
                                                   "MPEG-4 (*.mp4);;AVI (*.avi)",
                                                   options=options)
         if fileName:
@@ -119,12 +119,11 @@ class MainWindow(QMainWindow):
 
             self.value_tracker_table.reset_valuetracker_framesize(self.feeder.max_frame())
 
-
             self.slider_released()
 
     @pyqtSlot(str, float, float, float)
     def handle_poly_clicked(self, value, cx, cy, area):
-        label, ok = QInputDialog().getText(self, "QInputDialog().getText()",
+        label, ok = QInputDialog().getText(self, "Enter Label Name:",
                                               "Label:", QLineEdit.Normal)
         if ok:
             if self.value_tracker_table.is_label_exists(label):
