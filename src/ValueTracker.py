@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView
 from PyQt5.QtGui import QPolygonF
 from PyQt5.QtCore import QPointF, pyqtSlot
 
@@ -113,6 +113,8 @@ class ValueTrackerQTable(QTableWidget):
         self.setColumnCount(len(self.headers))
         self.setHorizontalHeaderLabels(self.headers)
         self.view_valuetracker(0)
+        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def reset_valuetracker_framesize(self, frame_size):
         self.valuetracker = ValueTracker(frame_size)
