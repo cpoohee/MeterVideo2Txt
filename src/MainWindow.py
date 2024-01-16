@@ -166,7 +166,7 @@ class MainWindow(QMainWindow):
         dlg = QMessageBox(self)
         dlg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         dlg.setWindowTitle("Warning!")
-        dlg.setText("Labels and predictions will be cleared!")
+        dlg.setText("Labels and predictions will be lost!")
         return dlg.exec()
 
     def reset_rotate_checkerbox(self):
