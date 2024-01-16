@@ -167,7 +167,8 @@ class ValueTrackerQTable(QTableWidget):
     def __init__(self, frame_size):
         super(QTableWidget, self).__init__()
         self.valuetracker = ValueTracker(frame_size)
-        self.headers = ["label", "x", "y", "area", "value"]
+        self.headers = ["label", "x", "y", "value"]
+        # self.headers = ["label", "x", "y", "area", "value"]
         self.setColumnCount(len(self.headers))
         self.setHorizontalHeaderLabels(self.headers)
         self.view_valuetracker(0)
@@ -200,9 +201,9 @@ class ValueTrackerQTable(QTableWidget):
         for key in frame_info.keys():
             data["label"].append(key)
             cx, cy, area, value = frame_info[key]
-            data["x"].append(cx)
-            data["y"].append(cy)
-            data["area"].append(area)
+            data["x"].append(int(cx)) # to int
+            data["y"].append(int(cy)) # to int
+            # data["area"].append(area)
             data["value"].append(value)
 
         self.setRowCount(len(data["label"]))
