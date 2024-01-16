@@ -21,10 +21,10 @@ TODO
 
 
 ## TODO list
-- track area of interest
-- allow tracking based on the last available coordinates and known polygon size.
 - "Process" button to continue extract 
 - "Export" button to save detected text and labels
+- editable value from gui to view exact frame
+- More choices of detector and recogniser
 
 ### Potential issues
 - 2 or more values might be detected within the same bounding polygon. 
