@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, \
-    QGraphicsPolygonItem
+    QGraphicsPolygonItem, QGraphicsView
 from PyQt5.QtGui import QPen, QPixmap, QImage, QPolygonF
 from PyQt5.QtCore import Qt, QPointF, pyqtSignal, pyqtSlot
 
@@ -112,3 +112,10 @@ class VideoScene(QGraphicsScene):
     def convert_cv_img_to_qtimage(self, cv_img):
         image = QImage(cv_img, cv_img.shape[1], cv_img.shape[0], cv_img.shape[1] * 3, QImage.Format_BGR888)
         return QPixmap(image)
+
+class GraphicsViewWithMouse (QGraphicsView):
+    mouse_moved_signal = pyqtSignal(float, float, name='mouse_moved')
+
+    def mouseMoveEvent(self, event):
+        relative_pos = self.mapToScene(event.pos())
+        self.mouse_moved_signal.emit( relative_pos.x(), relative_pos.y())

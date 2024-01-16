@@ -4,7 +4,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from VideoFeeder import VideoFeeder
-from VideoScene import VideoScene
+from VideoScene import VideoScene, GraphicsViewWithMouse
 from OCR import OCR
 from ValueTracker import ValueTrackerQTable
 
@@ -69,7 +69,9 @@ class MainWindow(QMainWindow):
 
         # Display video frames using VideoScene
         self.video_scene = VideoScene()
-        view = QGraphicsView(self.video_scene)
+        view = GraphicsViewWithMouse(self.video_scene)
+        view.setMouseTracking(True)
+        view.mouse_moved_signal.connect(self.handle_video_mousemove)
         layout.addWidget(view, stretch = 10)
         self.video_scene.clicked_signal.connect(self.handle_poly_clicked)
 
@@ -154,7 +156,10 @@ class MainWindow(QMainWindow):
         # to update video
         _ = self.refresh_video()
         self.value_tracker_table.view_valuetracker(self.frame_slider.value())
-        self.statusBar().showMessage(f'released at {self.frame_slider.value()}')
+        # self.statusBar().showMessage(f'released at {self.frame_slider.value()}')
+
+    def handle_video_mousemove(self, x, y):
+        self.statusBar().showMessage(f'Pixel {x:.0f}, {y:.0f}')
 
     def refresh_video(self):
         success, cv_img = self.feeder.grab_frame(self.frame_slider.value())
