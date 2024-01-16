@@ -4,6 +4,7 @@ import numpy as np
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView
 from PyQt5.QtGui import QPolygonF
 from PyQt5.QtCore import QPointF, pyqtSlot
+# from VideoFeeder import VideoFeeder
 
 class ValueTracker:
     def __init__(self, frame_size):
@@ -17,6 +18,62 @@ class ValueTracker:
 
     def label_exists(self, label):
         return label in self.labels
+
+    # def rotate_labels(self, from_angle, to_angle):
+    #     theta_degrees = self.get_rotation(from_angle, to_angle)
+    #     if theta_degrees == 0:
+    #         return
+    #
+    #     theta_rad = np.radians(theta_degrees)
+    #     c, s = np.cos(theta_rad), np.sin(theta_rad)
+    #     R = np.array(((c, -s), (s, c)))
+    #     for i, f in enumerate(self.frame):
+    #         for label in self.labels:
+    #             if label in f:
+    #                 cx, cy, area, value = self.frame[i][label]
+    #                 pt = np.array(((cx), (cy)))
+    #                 new_pt = R @ pt
+    #                 self.frame[i][label] = (abs(new_pt[0]), abs(new_pt[1]), area, value)
+    #
+    # def get_rotation(self, from_angle, to_angle):
+    #     """
+    #     Stupid way to figure out how rotation angles, because the rotation from angle still references to zeroth angle.
+    #     :param from_angle: VideoFeeder.ROTATE_90_COUNTERCLOCKWISE/ VideoFeeder.ROTATE_90_COUNTERCLOCKWISE/ VideoFeeder.ROTATE_180
+    #     :param to_angle: VideoFeeder.ROTATE_90_COUNTERCLOCKWISE/ VideoFeeder.ROTATE_90_COUNTERCLOCKWISE/ VideoFeeder.ROTATE_180
+    #     """
+    #     if from_angle == to_angle: return 0
+    #
+    #     if from_angle is None:
+    #         if to_angle == VideoFeeder.ROTATE_90_COUNTERCLOCKWISE:
+    #             return -90
+    #         if to_angle == VideoFeeder.VideoFeeder.ROTATE_90_CLOCKWISE:
+    #             return 90
+    #         if to_angle == VideoFeeder.ROTATE_180:
+    #             return 180
+    #
+    #     if from_angle == VideoFeeder.ROTATE_90_CLOCKWISE:
+    #         if to_angle == VideoFeeder.ROTATE_90_COUNTERCLOCKWISE:
+    #             return -180
+    #         if to_angle == VideoFeeder.ROTATE_180:
+    #             return 90
+    #         if to_angle == None:
+    #             return -90
+    #
+    #     if from_angle == VideoFeeder.ROTATE_90_COUNTERCLOCKWISE:
+    #         if to_angle == None:
+    #             return 90
+    #         if to_angle == VideoFeeder.ROTATE_180:
+    #             return -90
+    #         if to_angle == VideoFeeder.ROTATE_90_CLOCKWISE:
+    #             return 180
+    #
+    #     if from_angle == VideoFeeder.ROTATE_180:
+    #         if to_angle == None:
+    #             return 180
+    #         if to_angle == VideoFeeder.ROTATE_90_CLOCKWISE:
+    #             return -90
+    #         if to_angle == VideoFeeder.ROTATE_90_COUNTERCLOCKWISE:
+    #             return 90
 
     def track_labels(self, pred, frame_i):
         # process into qpolygons
@@ -128,6 +185,9 @@ class ValueTrackerQTable(QTableWidget):
 
     def track_labels(self, pred, frame_i):
         self.valuetracker.track_labels(pred, frame_i)
+
+    # def rotate_labels(self, from_angle, to_angle):
+    #     self.valuetracker.rotate_labels(from_angle, to_angle)
 
     def view_valuetracker(self, frame_i):
         self.clearContents()

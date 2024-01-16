@@ -29,35 +29,35 @@ class MainWindow(QMainWindow):
         exit_action.triggered.connect(self.close)
         self.file_menu.addAction(exit_action)
 
-        rotate_none_action = QAction("No Rotation", self)
-        rotate_none_action.setCheckable(True)
-        rotate_none_action.setChecked(True)
-        rotate_none_action.triggered.connect(self.no_rotation_video)
+        self.rotate_none_action = QAction("No Rotation", self)
+        self.rotate_none_action.setCheckable(True)
+        self.rotate_none_action.setChecked(True)
+        self.rotate_none_action.triggered.connect(self.no_rotation_video)
 
-        rotate_c90_action = QAction("Rotate Clockwise 90" + u'\N{DEGREE SIGN}', self)
-        rotate_c90_action.setCheckable(True)
-        rotate_c90_action.triggered.connect(self.rotate_c90_video)
+        self.rotate_c90_action = QAction("Rotate Clockwise 90" + u'\N{DEGREE SIGN}', self)
+        self.rotate_c90_action.setCheckable(True)
+        self.rotate_c90_action.triggered.connect(self.rotate_c90_video)
 
-        rotate_180_action = QAction("Rotate 180" + u'\N{DEGREE SIGN}', self)
-        rotate_180_action.setCheckable(True)
-        rotate_180_action.triggered.connect(self.rotate_180_video)
+        self.rotate_180_action = QAction("Rotate 180" + u'\N{DEGREE SIGN}', self)
+        self.rotate_180_action.setCheckable(True)
+        self.rotate_180_action.triggered.connect(self.rotate_180_video)
 
-        rotate_ac90_action = QAction("Rotate Anti-Clockwise 90" + u'\N{DEGREE SIGN}', self)
-        rotate_ac90_action.setCheckable(True)
-        rotate_ac90_action.triggered.connect(self.rotate_ac90_video)
+        self.rotate_ac90_action = QAction("Rotate Anti-Clockwise 90" + u'\N{DEGREE SIGN}', self)
+        self.rotate_ac90_action.setCheckable(True)
+        self.rotate_ac90_action.triggered.connect(self.rotate_ac90_video)
 
         self.rotation_group = QActionGroup(self)
-        self.rotation_group.addAction(rotate_none_action)
-        self.rotation_group.addAction(rotate_c90_action)
-        self.rotation_group.addAction(rotate_180_action)
-        self.rotation_group.addAction(rotate_ac90_action)
+        self.rotation_group.addAction(self.rotate_none_action)
+        self.rotation_group.addAction(self.rotate_c90_action)
+        self.rotation_group.addAction(self.rotate_180_action)
+        self.rotation_group.addAction(self.rotate_ac90_action)
         self.rotation_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.Exclusive)
         self.rotation_group.setDisabled(True)
 
-        self.orientation_menu.addAction(rotate_none_action)
-        self.orientation_menu.addAction(rotate_c90_action)
-        self.orientation_menu.addAction(rotate_180_action)
-        self.orientation_menu.addAction(rotate_ac90_action)
+        self.orientation_menu.addAction(self.rotate_none_action)
+        self.orientation_menu.addAction(self.rotate_c90_action)
+        self.orientation_menu.addAction(self.rotate_180_action)
+        self.orientation_menu.addAction(self.rotate_ac90_action)
 
         # Status Bar
         self.status = self.statusBar()
@@ -162,21 +162,76 @@ class MainWindow(QMainWindow):
         self.video_scene.update_screen(cv_img, pred)
         return pred
 
+    def rotation_warning(self):
+        dlg = QMessageBox(self)
+        dlg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        dlg.setWindowTitle("Warning!")
+        dlg.setText("Labels and predictions will be cleared!")
+        return dlg.exec()
+
+    def reset_rotate_checkerbox(self):
+        if self.feeder.get_rotate() == None:
+            self.rotation_group.blockSignals(True)
+            self.rotate_none_action.setChecked(True)
+            self.rotation_group.blockSignals(False)
+
+        if self.feeder.get_rotate() == VideoFeeder.ROTATE_90_CLOCKWISE:
+            self.rotation_group.blockSignals(True)
+            self.rotate_c90_action.setChecked(True)
+            self.rotation_group.blockSignals(False)
+
+        if self.feeder.get_rotate() == VideoFeeder.ROTATE_180:
+            self.rotation_group.blockSignals(True)
+            self.rotate_180_action.setChecked(True)
+            self.rotation_group.blockSignals(False)
+
+        if self.feeder.get_rotate() == VideoFeeder.ROTATE_90_COUNTERCLOCKWISE:
+            self.rotation_group.blockSignals(True)
+            self.rotate_ac90_action.setChecked(True)
+            self.rotation_group.blockSignals(False)
+
     def no_rotation_video(self):
+        # self.value_tracker_table.rotate_labels(self.feeder.get_rotate(), None)
+        ret = self.rotation_warning()
+        if ret == QMessageBox.Cancel:
+            self.reset_rotate_checkerbox()
+            return
+
         self.feeder.set_rotate(None)
         self.refresh_video()
+        self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def rotate_c90_video(self):
+        # self.value_tracker_table.rotate_labels(self.feeder.get_rotate(), VideoFeeder.ROTATE_90_CLOCKWISE)
+        ret = self.rotation_warning()
+        if ret == QMessageBox.Cancel:
+            self.reset_rotate_checkerbox()
+            return
         self.feeder.set_rotate(VideoFeeder.ROTATE_90_CLOCKWISE)
         self.refresh_video()
+        self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def rotate_180_video(self):
+        # self.value_tracker_table.rotate_labels(self.feeder.get_rotate(),
+        #                                        VideoFeeder.ROTATE_180)
+        ret = self.rotation_warning()
+        if ret == QMessageBox.Cancel:
+            self.reset_rotate_checkerbox()
+            return
         self.feeder.set_rotate(VideoFeeder.ROTATE_180)
         self.refresh_video()
+        self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def rotate_ac90_video(self):
+        # self.value_tracker_table.rotate_labels(self.feeder.get_rotate(),
+        #                                        VideoFeeder.ROTATE_90_COUNTERCLOCKWISE)
+        ret = self.rotation_warning()
+        if ret == QMessageBox.Cancel:
+            self.reset_rotate_checkerbox()
+            return
         self.feeder.set_rotate(VideoFeeder.ROTATE_90_COUNTERCLOCKWISE)
         self.refresh_video()
+        self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def track_next_button_clicked(self):
         if self.frame_slider.value() < self.feeder.max_frame():

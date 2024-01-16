@@ -24,6 +24,9 @@ class VideoFeeder:
         :param rotate: One of [ROTATE_90_CLOCKWISE, ROTATE_180, ROTATE_90_COUNTERCLOCKWISE, None]
         """
         self.rotate = rotate
+    def get_rotate(self):
+        return self.rotate
+
     def grab_frame(self, frame:int ) -> tuple([bool, np.ndarray]):
         """
         Reads target frame from video.
