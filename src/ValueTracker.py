@@ -86,6 +86,7 @@ class ValueTracker:
             qpoly = self.get_polygon(pred_poly)
             qpoly_list.append(self.get_centroid_poly(qpoly))
 
+        # probably can be optimised for efficiency in future
         for label in self.labels:
             # search previous available prediction
             i = frame_i - 1
