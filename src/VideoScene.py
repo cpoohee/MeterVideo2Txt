@@ -119,3 +119,4 @@ class GraphicsViewWithMouse (QGraphicsView):
     def mouseMoveEvent(self, event):
         relative_pos = self.mapToScene(event.pos())
         self.mouse_moved_signal.emit( relative_pos.x(), relative_pos.y())
+        super().mouseMoveEvent(event)
