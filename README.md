@@ -21,11 +21,11 @@ TODO
 
 
 ## TODO list
-- "Process" button to continue extract 
 - "Export" button to save detected text and labels
-- editable value from gui to view exact frame
+- Allow editing/repositioning of tracked Labels.
 - More choices of detector and recogniser
 - Add mode to choose between tracking mode or fixed area mode.
+- Add threshold for tracking nearest polygon in tracking mode. 
 
 ### Potential issues
 - 2 or more values might be detected within the same bounding polygon. 
