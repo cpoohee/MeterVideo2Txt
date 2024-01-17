@@ -78,20 +78,19 @@ class MainWindow(QMainWindow):
         # slider stuff
         slider_widget = QWidget(self)
         slider_layout = QHBoxLayout()
-        self.frame_slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.frame_slider.setDisabled(True)
-        self.frame_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
-        self.frame_slider.valueChanged.connect(self.update_slider_value)
-        self.frame_slider.sliderReleased.connect(self.slider_released)
-        slider_layout.addWidget(self.frame_slider)
         self.slider_label = QLabel("frame:", self)
         self.slider_spinbox = QSpinBox(self)
         self.slider_spinbox.setDisabled(True)
         self.slider_spinbox.valueChanged.connect(self.spinbox_value_changed)
         slider_layout.addWidget(self.slider_label)
         slider_layout.addWidget(self.slider_spinbox)
+        self.frame_slider = QSlider(Qt.Orientation.Horizontal, self)
+        self.frame_slider.setDisabled(True)
+        self.frame_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
+        self.frame_slider.valueChanged.connect(self.update_slider_value)
+        self.frame_slider.sliderReleased.connect(self.slider_released)
+        slider_layout.addWidget(self.frame_slider)
         slider_widget.setLayout(slider_layout)
-
         layout.addWidget(slider_widget, stretch = 1)
 
         self.value_tracker_table = ValueTrackerQTable(1)
@@ -101,9 +100,10 @@ class MainWindow(QMainWindow):
         buttons_layout = QHBoxLayout()
         self.track_next_button = QPushButton("Track Next Frame")
         self.track_next_button.clicked.connect(self.track_next_button_clicked)
-        self.process_all_button = QPushButton("Process All")
+        self.track_subsequent_button = QPushButton("Track Subsequent Frames")
+        self.track_subsequent_button.clicked.connect(self.track_subsequent_button_clicked)
         buttons_layout.addWidget(self.track_next_button)
-        buttons_layout.addWidget(self.process_all_button)
+        buttons_layout.addWidget(self.track_subsequent_button)
         self.buttons_widget.setLayout(buttons_layout)
         self.buttons_widget.setDisabled(True)
         layout.addWidget(self.buttons_widget)
@@ -262,10 +262,20 @@ class MainWindow(QMainWindow):
         self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def track_next_button_clicked(self):
-        if self.frame_slider.value() < self.feeder.max_frame():
+        if self.frame_slider.value() < self.feeder.max_frame() - 1:
             self.frame_slider.setValue(self.frame_slider.value() + 1)
             pred = self.refresh_video()
             # do filtering in value tracker and add at value + 1
             self.value_tracker_table.track_labels(pred, self.frame_slider.value())
             # by now, new values shd be updated in the value tracker
             self.value_tracker_table.view_valuetracker(self.frame_slider.value())
+
+    def track_subsequent_button_clicked(self):
+        progress = QProgressDialog("Tracking subsequent frames...", "Abort", self.frame_slider.value(), self.feeder.max_frame(), self);
+        progress.setWindowModality(Qt.WindowModal)
+        while self.frame_slider.value() < self.feeder.max_frame() - 1:
+            self.track_next_button_clicked()
+            progress.setValue(self.frame_slider.value())
+            if progress.wasCanceled():
+                break
+        progress.close()
