@@ -84,8 +84,12 @@ class MainWindow(QMainWindow):
         self.frame_slider.valueChanged.connect(self.update_slider_value)
         self.frame_slider.sliderReleased.connect(self.slider_released)
         slider_layout.addWidget(self.frame_slider)
-        self.slider_label = QLabel("0", self)
+        self.slider_label = QLabel("frame:", self)
+        self.slider_spinbox = QSpinBox(self)
+        self.slider_spinbox.setDisabled(True)
+        self.slider_spinbox.valueChanged.connect(self.spinbox_value_changed)
         slider_layout.addWidget(self.slider_label)
+        slider_layout.addWidget(self.slider_spinbox)
         slider_widget.setLayout(slider_layout)
 
         layout.addWidget(slider_widget, stretch = 1)
@@ -128,6 +132,12 @@ class MainWindow(QMainWindow):
             self.frame_slider.setEnabled(True)
             self.frame_slider.setRange(0, self.feeder.max_frame() - 1)
             self.frame_slider.setTickPosition(0)
+            self.slider_spinbox.blockSignals(True)
+            self.slider_spinbox.setEnabled(True)
+            self.slider_spinbox.setValue(0)
+            self.slider_spinbox.setMaximum(self.feeder.max_frame() - 1)
+            self.slider_spinbox.blockSignals(False)
+
             self.rotation_group.setEnabled(True)
             self.buttons_widget.setEnabled(True)
 
@@ -149,13 +159,26 @@ class MainWindow(QMainWindow):
                 self.value_tracker_table.add_label(label, cx, cy, area, value, self.frame_slider.value())
                 self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
+    def spinbox_value_changed(self, value):
+        self.frame_slider.blockSignals(True)
+        self.frame_slider.setValue(value)
+        self.frame_slider.blockSignals(False)
+        self.slider_released()
+
     def update_slider_value(self, value):
-        self.slider_label.setText(f'{value}')
+        self.slider_spinbox.blockSignals(True)
+        self.slider_spinbox.setValue(value)
+        self.slider_spinbox.blockSignals(False)
 
     def slider_released(self):
         # to update video
         _ = self.refresh_video()
         self.value_tracker_table.view_valuetracker(self.frame_slider.value())
+
+        self.slider_spinbox.blockSignals(True)
+        self.slider_spinbox.setValue(self.frame_slider.value())
+        self.slider_spinbox.blockSignals(False)
+
         # self.statusBar().showMessage(f'released at {self.frame_slider.value()}')
 
     def handle_video_mousemove(self, x, y):
