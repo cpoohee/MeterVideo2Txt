@@ -32,9 +32,13 @@ class OCR:
         if det is None:
             self.detector = None
         else:
+            if not self.check_model_exists(det):
+                self.download_model(det)
             self.detector = TextDetInferencer(weights=models[det])
 
     def set_recognizer(self, rec='svtr-base'):
+        if not self.check_model_exists(rec):
+            self.download_model(rec)
         self.recognizer = TextRecInferencer(model=model_config[rec], weights=models[rec])
 
     def check_model_exists(self, model_name):
