@@ -1,5 +1,5 @@
 import pytest
-from src.WordMatch import WordMatch
+from src.utils.WordMatch import WordMatch
 
 def test_initialise():
     wordmatch = WordMatch()

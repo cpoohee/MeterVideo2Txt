@@ -1,5 +1,5 @@
 import pytest
-from src.KalmanFilter import FilterCoord
+from src.utils.KalmanFilter import FilterCoord
 def test_kalman():
     kf = FilterCoord(x = 0, y = 1000)
 

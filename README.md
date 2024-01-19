@@ -21,9 +21,9 @@ TODO
 
 
 ## TODO list
-- Allow editing/repositioning of tracked Labels.
 - More choices of detector and recogniser
 - Add mode to choose between tracking mode or fixed area mode.
+- Allow editing/repositioning of tracked Labels.
 - Add threshold for tracking nearest polygon in tracking mode. 
 - Add kalman filter for tracking between points
 

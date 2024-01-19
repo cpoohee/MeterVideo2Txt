@@ -2,10 +2,10 @@ from pathlib import Path
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from VideoFeeder import VideoFeeder
-from VideoScene import VideoScene, GraphicsViewWithMouse
-from OCR import OCR
-from ValueTracker import ValueTrackerQTable
+from src.core.VideoFeeder import VideoFeeder
+from src.core.OCR import OCR
+from src.ui.VideoScene import VideoScene, GraphicsViewWithMouse
+from src.ui.ValueTrackerQTable import ValueTrackerQTable
 
 class MainWindow(QMainWindow):
     def __init__(self):
