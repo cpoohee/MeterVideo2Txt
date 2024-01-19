@@ -23,6 +23,7 @@ dependencies:
   - huggingface::transformers=4.33.3
   - pip:
     - mmocr==1.0.1
+    - wget==3.2
     - pytest
 
 # CUDA install

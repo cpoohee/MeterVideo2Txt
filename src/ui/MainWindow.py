@@ -4,6 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from src.core.VideoFeeder import VideoFeeder
 from src.core.OCR import OCR
+from src.core.ocr_models import models, det_models, rec_models
 from src.ui.VideoScene import VideoScene, GraphicsViewWithMouse
 from src.ui.ValueTrackerQTable import ValueTrackerQTable
 
@@ -121,6 +122,70 @@ class MainWindow(QMainWindow):
         self.feeder = VideoFeeder()
         self.ocr = OCR()
 
+        self.download_models()
+        self.check_models_downloaded()
+
+    def check_models_downloaded(self):
+        available_det_models = []
+        for model in det_models.keys():
+            if self.ocr.check_model_exists(model):
+                available_det_models.append(model)
+
+        available_rec_models = []
+        for model in rec_models.keys():
+            if self.ocr.check_model_exists(model):
+                available_rec_models.append(model)
+
+        self.detector_menu = self.menu.addMenu("Detector Model")
+        self.recognizer_menu = self.menu.addMenu("Recognizer Model")
+
+        self.detector_group = QActionGroup(self)
+        self.det_action_dict = {}
+        checked = False
+        for det_model in available_det_models:
+            self.det_action_dict[det_model] = QAction(det_model, self)
+            self.det_action_dict[det_model].setCheckable(True)
+            if not checked:
+                self.det_action_dict[det_model].setChecked(True)
+                checked = True
+            self.detector_menu.addAction(self.det_action_dict[det_model])
+            self.detector_group.addAction(self.det_action_dict[det_model])
+            self.det_action_dict[det_model].triggered.connect(self.det_selected)
+        self.detector_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.Exclusive)
+        self.detector_group.setDisabled(True)
+
+        self.recognizer_group = QActionGroup(self)
+        self.rec_action_dict = {}
+        checked = False
+        for rec_model in available_rec_models:
+            self.rec_action_dict[rec_model] = QAction(rec_model, self)
+            self.rec_action_dict[rec_model].setCheckable(True)
+            if not checked:
+                self.rec_action_dict[rec_model].setChecked(True)
+                checked = True
+            self.recognizer_menu.addAction(self.rec_action_dict[rec_model])
+            self.recognizer_group.addAction(self.rec_action_dict[rec_model])
+            self.rec_action_dict[rec_model].triggered.connect(self.rec_selected)
+        self.recognizer_group.setExclusionPolicy(QActionGroup.ExclusionPolicy.Exclusive)
+        self.recognizer_group.setDisabled(True)
+
+    def download_models(self):
+        for model in models.keys():
+            if not self.ocr.check_model_exists(model):
+                self.ocr.download_model(model)
+
+    def det_selected(self):
+        # find checked
+        for det in self.det_action_dict:
+            if self.det_action_dict[det].isChecked():
+                self.ocr.set_detector(det)
+                _ = self.refresh_video()
+
+    def rec_selected(self):
+        for rec in self.rec_action_dict:
+            if self.rec_action_dict[rec].isChecked():
+                self.ocr.set_recognizer(rec)
+                _ = self.refresh_video()
 
     def load_video(self):
         options = QFileDialog.Options()
@@ -142,6 +207,9 @@ class MainWindow(QMainWindow):
 
             self.rotation_group.setEnabled(True)
             self.buttons_widget.setEnabled(True)
+
+            self.detector_group.setEnabled(True)
+            self.recognizer_group.setEnabled(True)
 
             self.value_tracker_table.reset_valuetracker_framesize(self.feeder.max_frame())
 

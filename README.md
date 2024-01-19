@@ -21,11 +21,11 @@ TODO
 
 
 ## TODO list
-- More choices of detector and recogniser
 - Add mode to choose between tracking mode or fixed area mode.
 - Allow editing/repositioning of tracked Labels.
 - Add threshold for tracking nearest polygon in tracking mode. 
 - Add kalman filter for tracking between points
+- Separate settings to download detectors and recognisers
 
 ### Potential issues
 - 2 or more values might be detected within the same bounding polygon. 

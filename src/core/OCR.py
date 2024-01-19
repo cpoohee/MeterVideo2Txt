@@ -1,7 +1,11 @@
+import os
 import numpy as np
 from mmocr.apis import TextDetInferencer, TextRecInferencer
 from mmocr.utils import bbox2poly, crop_img, poly2bbox
 # from mmocr.apis import MMOCRInferencer
+from pathlib import Path
+import wget
+from src.core.ocr_models import det_models, rec_models, models, models_url, model_config
 
 class OCR:
     def __init__(self, det='MaskRCNN_IC15', rec='svtr-base'):
@@ -18,8 +22,34 @@ class OCR:
         # self.model = MMOCRInferencer(det=self.det, rec=self.rec)
 
         # let's resort to Standard Inferencer
-        self.detector = TextDetInferencer(model=self.det)
-        self.recognizer = TextRecInferencer(model=self.rec)
+
+        if det is not None:
+            self.set_detector(self.det)
+
+        if rec is not None:
+            self.set_recognizer(self.rec)
+    def set_detector(self, det='MaskRCNN_IC15'):
+        if det is None:
+            self.detector = None
+        else:
+            self.detector = TextDetInferencer(weights=models[det])
+
+    def set_recognizer(self, rec='svtr-base'):
+        self.recognizer = TextRecInferencer(model=model_config[rec], weights=models[rec])
+
+    def check_model_exists(self, model_name):
+        cur_dir = Path(os.getcwd())
+        det_model_path = cur_dir / Path(models[model_name])
+        return det_model_path.exists()
+
+    def download_model(self, model_name):
+        cur_dir = Path(os.getcwd())
+        model_path = cur_dir / Path(models[model_name])
+        try:
+            wget.download(models_url[model_name], model_path.as_posix())
+            return True
+        except:
+            return False
 
     def predict(self, image_input:np.ndarray):
         """
