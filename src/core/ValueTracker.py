@@ -19,6 +19,8 @@ class ValueTracker:
         return label in self.labels
 
     def track_labels(self, pred, frame_i):
+        if pred is None:
+            return
         # process into qpolygons
         pred = pred['predictions'][0]
         pred_value_list = pred['rec_texts']

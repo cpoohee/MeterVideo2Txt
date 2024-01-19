@@ -1,7 +1,8 @@
 det_models = {
     'MaskRCNN_IC15': 'models/mask-rcnn_resnet50_fpn_160e_icdar2015_20220826_154808-ff5c30bf.pth',
     'DBNetpp': 'models/dbnetpp_resnet50-oclip_fpnc_1200e_icdar2015_20221101_124139-4ecb39ac.pth',
-    'FCENet': 'models/fcenet_resnet50-oclip_fpn_1500e_icdar2015_20221101_150145-5a6fc412.pth'
+    'FCENet': 'models/fcenet_resnet50-oclip_fpn_1500e_icdar2015_20221101_150145-5a6fc412.pth',
+    'Fixed Area': ''
 }
 rec_models = {
     'svtr-base': 'models/svtr-base_20e_st_mj-ea500101.pth',

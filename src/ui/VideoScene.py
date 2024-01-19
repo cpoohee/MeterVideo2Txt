@@ -101,6 +101,8 @@ class VideoScene(QGraphicsScene):
                 self.addItem(poly_item)
             # self.clicked_signal.connect(self.handle_poly_clicked)
 
+    ## todo: click and drag detection to define bounding boxes
+
     def get_polygon(self, polys):
         qpoly = QPolygonF()
         list_y = polys[1::2]

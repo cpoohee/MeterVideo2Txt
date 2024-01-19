@@ -29,7 +29,7 @@ class OCR:
         if rec is not None:
             self.set_recognizer(self.rec)
     def set_detector(self, det='MaskRCNN_IC15'):
-        if det is None:
+        if det == 'Fixed Area':
             self.detector = None
         else:
             if not self.check_model_exists(det):
@@ -42,11 +42,15 @@ class OCR:
         self.recognizer = TextRecInferencer(model=model_config[rec], weights=models[rec])
 
     def check_model_exists(self, model_name):
+        if model_name == 'Fixed Area':
+            return True
         cur_dir = Path(os.getcwd())
         det_model_path = cur_dir / Path(models[model_name])
         return det_model_path.exists()
 
     def download_model(self, model_name):
+        if model_name == 'Fixed Area':
+            return True
         cur_dir = Path(os.getcwd())
         model_path = cur_dir / Path(models[model_name])
         try:
@@ -105,3 +109,6 @@ class OCR:
         pred['predictions'] = [inner_pred]
 
         return pred
+
+    def recognize_bboxes(self, image_input:np.ndarray, bboxes):
+        pass

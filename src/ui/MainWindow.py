@@ -254,8 +254,13 @@ class MainWindow(QMainWindow):
 
     def refresh_video(self):
         success, cv_img = self.feeder.grab_frame(self.frame_slider.value())
-        pred = self.ocr.predict(cv_img)
+        if self.ocr.detector is not None:
+            pred = self.ocr.predict(cv_img)
+        else:
+            bboxes = None # todo: load defined boxes from video scene
+            pred = self.ocr.recognize_bboxes(cv_img, bboxes)
         self.video_scene.update_screen(cv_img, pred)
+
         return pred
 
     def rotation_warning(self):
