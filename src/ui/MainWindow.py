@@ -265,8 +265,10 @@ class MainWindow(QMainWindow):
             self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def track_subsequent_button_clicked(self):
-        progress = QProgressDialog("Tracking subsequent frames...", "Abort", self.frame_slider.value(), self.feeder.max_frame(), self);
+        progress = QProgressDialog("Tracking subsequent frames...", "Abort", self.frame_slider.value(), self.feeder.max_frame(), self)
+        progress.setWindowTitle("Tracking...")
         progress.setWindowModality(Qt.WindowModal)
+        progress.setFixedSize(300, 100)
         while self.frame_slider.value() < self.feeder.max_frame() - 1:
             self.track_next_button_clicked()
             progress.setValue(self.frame_slider.value())
