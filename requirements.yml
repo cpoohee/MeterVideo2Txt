@@ -14,6 +14,7 @@ dependencies:
   - pytorch=2.0.0
   - torchvision=0.15.0
   - pytorch-cuda=11.8
+  - conda-forge::pandas=2.1.4
   - conda-forge::openmim=0.3.7
   - conda-forge::mmengine=0.9.1
   - conda-forge::mmcv=2.0.0  # still required recompiling!

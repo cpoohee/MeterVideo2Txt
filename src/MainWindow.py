@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import *
@@ -102,8 +103,11 @@ class MainWindow(QMainWindow):
         self.track_next_button.clicked.connect(self.track_next_button_clicked)
         self.track_subsequent_button = QPushButton("Track Subsequent Frames")
         self.track_subsequent_button.clicked.connect(self.track_subsequent_button_clicked)
+        self.export_button = QPushButton("Export")
+        self.export_button.clicked.connect(self.export_button_clicked)
         buttons_layout.addWidget(self.track_next_button)
         buttons_layout.addWidget(self.track_subsequent_button)
+        buttons_layout.addWidget(self.export_button)
         self.buttons_widget.setLayout(buttons_layout)
         self.buttons_widget.setDisabled(True)
         layout.addWidget(self.buttons_widget)
@@ -279,3 +283,42 @@ class MainWindow(QMainWindow):
             if progress.wasCanceled():
                 break
         progress.close()
+
+    def export_button_clicked(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fd = QFileDialog(self, "Export File", "",
+                                       options=options)
+
+        filters = ["CSV File(*.csv)",
+                   "Excel File(*.xlsx)",
+                   "Pickle File(*.pkl)"]
+        fd.setNameFilters(filters)
+        fd.setAcceptMode(QFileDialog.AcceptSave)
+
+        if fd.exec():
+            filename = fd.selectedFiles()[0]
+            format = fd.selectedNameFilter()
+
+            if filename:
+                filepath = Path(filename)
+                # strip extensions
+                filepath.with_suffix('')
+
+                if format=='CSV File(*.csv)':
+                    format='.csv'
+                elif format=='Excel File(*.xlsx)':
+                    format='.xlsx'
+                elif format=='Pickle File(*.pkl)':
+                    format='.pkl'
+                filename = str(filepath.with_suffix(format))
+                # check manually for override, built in file dialog does not check selected filter extension
+                if QFile.exists(filename):
+                    qm = QMessageBox()
+                    qm.question(self, '',
+                                f"{QFileInfo(filename).fileName()} already exists.\n Do you want to replace it?",
+                                qm.Yes | qm.No)
+                    if qm.No:
+                        return
+                self.value_tracker_table.export_values(filename, format)
+                self.statusBar().showMessage(f'Saved to: {filename:}')

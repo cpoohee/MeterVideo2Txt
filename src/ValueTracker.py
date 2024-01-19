@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView
 from PyQt5.QtGui import QPolygonF
 from PyQt5.QtCore import QPointF, pyqtSlot
 # from VideoFeeder import VideoFeeder
+import pandas as pd
 
 class ValueTracker:
     def __init__(self, frame_size):
@@ -162,6 +163,23 @@ class ValueTracker:
     def get_frame_info(self, frame_i):
         return self.frame[frame_i]
 
+    def export_values(self, filename, format='.csv'):
+        data = []
+        data_col = ['frameNumber', 'label', 'value']
+        for lab in self.labels:
+            for f_number, frame in enumerate(self.frame):
+                if lab in frame:
+                    _, _, _, value = frame[lab]
+                    data.append([f_number, lab, value])
+
+        df = pd.DataFrame(data, columns = data_col)
+
+        if format=='.csv':
+            df.to_csv(filename, index=False)
+        elif format=='.xlsx':
+            df.to_excel(filename, index=False)
+        elif format=='pkl':
+            df.to_pickle(filename, index=False)
 
 class ValueTrackerQTable(QTableWidget):
     def __init__(self, frame_size):
@@ -213,3 +231,6 @@ class ValueTrackerQTable(QTableWidget):
                 self.setItem(m, n, newitem)
 
         self.resizeRowsToContents()
+
+    def export_values(self, filename, format):
+        self.valuetracker.export_values(filename, format)
