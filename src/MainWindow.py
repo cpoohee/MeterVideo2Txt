@@ -1,7 +1,5 @@
-import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
-from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from VideoFeeder import VideoFeeder
@@ -183,8 +181,6 @@ class MainWindow(QMainWindow):
         self.slider_spinbox.setValue(self.frame_slider.value())
         self.slider_spinbox.blockSignals(False)
 
-        # self.statusBar().showMessage(f'released at {self.frame_slider.value()}')
-
     def handle_video_mousemove(self, x, y):
         self.statusBar().showMessage(f'Pixel {x:.0f}, {y:.0f}')
 
@@ -223,7 +219,6 @@ class MainWindow(QMainWindow):
             self.rotation_group.blockSignals(False)
 
     def no_rotation_video(self):
-        # self.value_tracker_table.rotate_labels(self.feeder.get_rotate(), None)
         ret = self.rotation_warning()
         if ret == QMessageBox.Cancel:
             self.reset_rotate_checkerbox()
@@ -234,7 +229,6 @@ class MainWindow(QMainWindow):
         self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def rotate_c90_video(self):
-        # self.value_tracker_table.rotate_labels(self.feeder.get_rotate(), VideoFeeder.ROTATE_90_CLOCKWISE)
         ret = self.rotation_warning()
         if ret == QMessageBox.Cancel:
             self.reset_rotate_checkerbox()
@@ -244,8 +238,6 @@ class MainWindow(QMainWindow):
         self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def rotate_180_video(self):
-        # self.value_tracker_table.rotate_labels(self.feeder.get_rotate(),
-        #                                        VideoFeeder.ROTATE_180)
         ret = self.rotation_warning()
         if ret == QMessageBox.Cancel:
             self.reset_rotate_checkerbox()
@@ -255,8 +247,6 @@ class MainWindow(QMainWindow):
         self.value_tracker_table.view_valuetracker(self.frame_slider.value())
 
     def rotate_ac90_video(self):
-        # self.value_tracker_table.rotate_labels(self.feeder.get_rotate(),
-        #                                        VideoFeeder.ROTATE_90_COUNTERCLOCKWISE)
         ret = self.rotation_warning()
         if ret == QMessageBox.Cancel:
             self.reset_rotate_checkerbox()
