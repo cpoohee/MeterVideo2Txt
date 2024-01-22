@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, \
     QGraphicsPolygonItem, QGraphicsView, QRubberBand, QGraphicsRectItem
 from PyQt5.QtGui import QPen, QPixmap, QImage, QPolygonF
 from PyQt5.QtCore import Qt, QPointF, pyqtSignal, QRect, QSize, QObject, pyqtSlot
+from src.utils.geometry import get_centroid_poly
 
 class QGraphicsPolygonItemHovers (QGraphicsPolygonItem):
     def __init__(self,parent=None):
@@ -22,7 +23,7 @@ class QGraphicsPolygonItemHovers (QGraphicsPolygonItem):
 
     def mousePressEvent(self, event, QGraphicsSceneMouseEvent=None):
         if event.button() == Qt.LeftButton:
-            cx, cy, area = self.get_centroid_poly()
+            cx, cy, area = get_centroid_poly(self.polygon())
             self.scene().clicked_signal.emit(self.text, cx, cy, area)
 
     def set_highlighted(self):
@@ -37,34 +38,34 @@ class QGraphicsPolygonItemHovers (QGraphicsPolygonItem):
         self.setPen(pen)
         self.update()
 
-    def get_centroid_poly(self):
-        """https://en.wikipedia.org/wiki/Centroid#Of_a_polygon"""
-        N = self.polygon().size()
-        # minimal sanity check
-        if N < 3:
-            raise ValueError('At least 3 vertices must be passed.')
-        sum_A, sum_Cx, sum_Cy = 0, 0, 0
-        last_iteration = N - 1
-        # from 0 to N-1
-        for i in range(N):
-            if i != last_iteration:
-                shoelace = self.polygon()[i].x() * self.polygon()[i + 1].y() - self.polygon()[i + 1].x() * self.polygon()[i].y()
-                sum_A += shoelace
-                sum_Cx += (self.polygon()[i].x() + self.polygon()[i + 1].x()) * shoelace
-                sum_Cy += (self.polygon()[i].y() + self.polygon()[i + 1].y()) * shoelace
-            else:
-                # N-1 case (last iteration): substitute i+1 -> 0
-                shoelace = self.polygon()[i].x() * self.polygon()[0].y() - self.polygon()[0].x() * self.polygon()[i].y()
-                sum_A += shoelace
-                sum_Cx += (self.polygon()[i].x() + self.polygon()[0].x()) * shoelace
-                sum_Cy += (self.polygon()[i].y() + self.polygon()[0].y()) * shoelace
-        A = 0.5 * sum_A
-        factor = 1 / (6 * A)
-        Cx = factor * sum_Cx
-        Cy = factor * sum_Cy
-        # returning abs of A is the only difference to
-        # the algo from above link
-        return Cx, Cy, abs(A)
+    # def get_centroid_poly(self):
+    #     """https://en.wikipedia.org/wiki/Centroid#Of_a_polygon"""
+    #     N = self.polygon().size()
+    #     # minimal sanity check
+    #     if N < 3:
+    #         raise ValueError('At least 3 vertices must be passed.')
+    #     sum_A, sum_Cx, sum_Cy = 0, 0, 0
+    #     last_iteration = N - 1
+    #     # from 0 to N-1
+    #     for i in range(N):
+    #         if i != last_iteration:
+    #             shoelace = self.polygon()[i].x() * self.polygon()[i + 1].y() - self.polygon()[i + 1].x() * self.polygon()[i].y()
+    #             sum_A += shoelace
+    #             sum_Cx += (self.polygon()[i].x() + self.polygon()[i + 1].x()) * shoelace
+    #             sum_Cy += (self.polygon()[i].y() + self.polygon()[i + 1].y()) * shoelace
+    #         else:
+    #             # N-1 case (last iteration): substitute i+1 -> 0
+    #             shoelace = self.polygon()[i].x() * self.polygon()[0].y() - self.polygon()[0].x() * self.polygon()[i].y()
+    #             sum_A += shoelace
+    #             sum_Cx += (self.polygon()[i].x() + self.polygon()[0].x()) * shoelace
+    #             sum_Cy += (self.polygon()[i].y() + self.polygon()[0].y()) * shoelace
+    #     A = 0.5 * sum_A
+    #     factor = 1 / (6 * A)
+    #     Cx = factor * sum_Cx
+    #     Cy = factor * sum_Cy
+    #     # returning abs of A is the only difference to
+    #     # the algo from above link
+    #     return Cx, Cy, abs(A)
 
 class VideoScene(QGraphicsScene):
     clicked_signal = pyqtSignal(str, float, float , float, name='clicked_signal')
@@ -100,9 +101,6 @@ class VideoScene(QGraphicsScene):
                 poly_item.setText(pred_word)
                 self.addItem(poly_item)
 
-    ## todo: click and drag detection to define bounding boxes
-    # https://stackoverflow.com/questions/42692885/qgraphicsview-how-to-make-rubber-band-selection-appear-only-on-left-mouse-butto
-
 
     def get_polygon(self, polys):
         qpoly = QPolygonF()
@@ -120,16 +118,16 @@ class FixedBoxes(QObject):
     def __init__(self):
         super(QObject).__init__()
         self.boxes = []
-        self.polys = []  # reuse existing polygon items in scene for display
+        self.poly_items = []  # reuse existing polygon items in scene for display
 
     def clear_boxes(self):
         self.boxes.clear()
-        self.polys.clear()
+        self.poly_items.clear()
 
-    def add_box(self, box:QRect):
+    def add_box(self, box:QPolygonF):
         self.boxes.append(box)
-        poly = QGraphicsPolygonItemHovers(self.rect_to_polygon(box))
-        self.polys.append(poly)
+        poly = QGraphicsPolygonItemHovers(box)
+        self.poly_items.append(poly)
 
     def get_boxes(self):
         """
@@ -137,11 +135,11 @@ class FixedBoxes(QObject):
         """
         return self.boxes
 
-    def get_polygons(self):
+    def get_polygons_items(self):
         """
         For drawing boxes on the scene
         """
-        return self.polys
+        return self.poly_items
 
     def rect_to_polygon(self, rect:QRect):
         return QPolygonF(rect.topLeft(),
@@ -152,6 +150,7 @@ class FixedBoxes(QObject):
 
 class GraphicsViewWithMouse (QGraphicsView):
     mouse_moved_signal = pyqtSignal(float, float, name='mouse_moved')
+    box_added_signal = pyqtSignal(QPolygonF, name='box_added')
 
     def __init__(self, scene = None):
         super(QGraphicsView, self).__init__(scene)
@@ -191,6 +190,7 @@ class GraphicsViewWithMouse (QGraphicsView):
             if self.rubberBand:
                 selected_area = QRect(self.origin, event.pos())
                 selected_area = self.mapToScene(selected_area)
+                self.box_added_signal.emit(selected_area)
 
                 self.clear_rubber_band()
 

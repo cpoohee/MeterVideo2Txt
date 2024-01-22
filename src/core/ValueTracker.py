@@ -4,6 +4,7 @@ import numpy as np
 from PyQt5.QtGui import QPolygonF
 from PyQt5.QtCore import QPointF
 import pandas as pd
+from src.utils.geometry import get_centroid_poly
 
 class ValueTracker:
     def __init__(self, frame_size):
@@ -29,7 +30,7 @@ class ValueTracker:
 
         for pred_poly in pred_poly_list:
             qpoly = self.get_polygon(pred_poly)
-            qpoly_list.append(self.get_centroid_poly(qpoly))
+            qpoly_list.append(get_centroid_poly(qpoly))
 
         # probably can be optimised for efficiency in future
         for label in self.labels:
@@ -71,34 +72,6 @@ class ValueTracker:
         for x, y in zip(list_x, list_y):
             qpoly.append(QPointF(x, y))
         return qpoly
-
-    def get_centroid_poly(self, polygon):
-        N = polygon.size()
-        # minimal sanity check
-        if N < 3:
-            raise ValueError('At least 3 vertices must be passed.')
-        sum_A, sum_Cx, sum_Cy = 0, 0, 0
-        last_iteration = N - 1
-        # from 0 to N-1
-        for i in range(N):
-            if i != last_iteration:
-                shoelace = polygon[i].x() * polygon[i + 1].y() - polygon[i + 1].x() * polygon[i].y()
-                sum_A += shoelace
-                sum_Cx += (polygon[i].x() + polygon[i + 1].x()) * shoelace
-                sum_Cy += (polygon[i].y() + polygon[i + 1].y()) * shoelace
-            else:
-                # N-1 case (last iteration): substitute i+1 -> 0
-                shoelace = polygon[i].x() * polygon[0].y() - polygon[0].x() * polygon[i].y()
-                sum_A += shoelace
-                sum_Cx += (polygon[i].x() + polygon[0].x()) * shoelace
-                sum_Cy += (polygon[i].y() + polygon[0].y()) * shoelace
-        A = 0.5 * sum_A
-        factor = 1 / (6 * A)
-        Cx = factor * sum_Cx
-        Cy = factor * sum_Cy
-        # returning abs of A is the only difference to
-        # the algo from above link
-        return Cx, Cy, abs(A)
 
     def update_label_info(self, label, cx, cy, area, value, frame_i):
         if label in self.labels:

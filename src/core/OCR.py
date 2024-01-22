@@ -113,4 +113,11 @@ class OCR:
         return pred
 
     def recognize_bboxes(self, image_input:np.ndarray, bboxes):
+        """
+        :param image_input: Image in numpy array. It should be in BGR order.
+        :param bboxes: list of QPolygonF
+        :return: prediction dict
+        """
+        # convert bboxes to polys
+        print("TO CONVERT POLYS")
         pass

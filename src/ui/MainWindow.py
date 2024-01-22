@@ -5,8 +5,9 @@ from PyQt5.QtCore import *
 from src.core.VideoFeeder import VideoFeeder
 from src.core.OCR import OCR
 from src.core.ocr_models import models, det_models, rec_models
-from src.ui.VideoScene import VideoScene, GraphicsViewWithMouse
+from src.ui.VideoScene import VideoScene, GraphicsViewWithMouse, FixedBoxes
 from src.ui.ValueTrackerQTable import ValueTrackerQTable
+from src.utils.geometry import get_centroid_poly
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -74,6 +75,9 @@ class MainWindow(QMainWindow):
         self.view.mouse_moved_signal.connect(self.handle_video_mousemove)
         layout.addWidget(self.view, stretch = 10)
         self.video_scene.clicked_signal.connect(self.handle_poly_clicked)
+
+        self.fixed_boxes = FixedBoxes() # for tracking fixed boxed detection
+        self.view.box_added_signal.connect(self.handle_box_added)
 
         # slider stuff
         slider_widget = QWidget(self)
@@ -181,6 +185,8 @@ class MainWindow(QMainWindow):
                 self.ocr.set_detector(det)
                 _ = self.refresh_video()
 
+                if det != 'Fixed Area':
+                    self.fixed_boxes.clear_boxes()
                 self.view.enable_fixed_boxes_mode(det == 'Fixed Area')
 
     def rec_selected(self):
@@ -259,11 +265,31 @@ class MainWindow(QMainWindow):
         if self.ocr.detector is not None:
             pred = self.ocr.predict(cv_img)
         else:
-            bboxes = None # todo: load defined boxes from video scene
+            bboxes = self.fixed_boxes.get_boxes()
             pred = self.ocr.recognize_bboxes(cv_img, bboxes)
         self.video_scene.update_screen(cv_img, pred)
 
         return pred
+
+    def handle_box_added(self, box:QPolygonF):
+        label, ok = QInputDialog().getText(self, "Enter Label Name:",
+                                           "Label:", QLineEdit.Normal)
+        if ok:
+            if self.value_tracker_table.is_label_exists(label):
+                dlg = QMessageBox(self)
+                dlg.setWindowTitle("Warning!")
+                dlg.setText("Label already exists!")
+                dlg.exec()
+            else:
+                cx, cy, area = get_centroid_poly(box)
+
+                # TODO: placeholder value, need to do recognition
+                value = ""
+
+                self.value_tracker_table.add_label(label, cx, cy, area, value,
+                                                   self.frame_slider.value())
+                self.value_tracker_table.view_valuetracker(self.frame_slider.value())
+                self.fixed_boxes.add_box(box)
 
     def rotation_warning(self):
         dlg = QMessageBox(self)
