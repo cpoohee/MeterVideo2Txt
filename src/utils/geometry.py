@@ -29,3 +29,10 @@ def get_centroid_poly(polygon:QPolygonF):
     # returning abs of A is the only difference to
     # the algo from above link
     return Cx, Cy, abs(A)
+
+def convert_QPolygons_to_array(polygon:QPolygonF):
+    arr = []
+    for i in range(0, polygon.size()):
+        arr.append(polygon[i].x())
+        arr.append(polygon[i].y())
+    return arr

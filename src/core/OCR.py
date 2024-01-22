@@ -6,6 +6,7 @@ from mmocr.utils import bbox2poly, crop_img, poly2bbox
 from pathlib import Path
 import wget
 from src.core.ocr_models import det_models, rec_models, models, models_url, model_config
+from src.utils.geometry import convert_QPolygons_to_array
 
 class OCR:
     def __init__(self, det='MaskRCNN_IC15', rec='svtr-base'):
@@ -102,8 +103,9 @@ class OCR:
         pred = {}
         inner_pred = {}
         rec_texts = []
-        for rec_res in result['rec'][0]:
-            rec_texts.append(rec_res.pred_text.item)
+        if result['rec']:
+            for rec_res in result['rec'][0]:
+                rec_texts.append(rec_res.pred_text.item)
         inner_pred['rec_texts'] = rec_texts
 
         inner_pred['det_polygons'] = result['valid_polys']
@@ -119,5 +121,38 @@ class OCR:
         :return: prediction dict
         """
         # convert bboxes to polys
-        print("TO CONVERT POLYS")
-        pass
+        result = {}
+        result['valid_polys'] = []  # extra work to filter valid polygons
+        self.rec_inputs = []
+
+        for box in bboxes:
+            # convert QPolygonF to [p1.x, p1.y, p2.x, p2.y ... ]
+            arr_poly = convert_QPolygons_to_array(box)
+            quad = bbox2poly(poly2bbox(arr_poly)).tolist()
+            c_img = crop_img(image_input, quad)
+            # check valid img, ignore if width or length is zero
+            if c_img.shape[0] > 0 and c_img.shape[1] > 0:
+                self.rec_inputs.append(c_img)
+                result['valid_polys'].append(arr_poly)
+
+        result['rec'] = []
+        if self.rec_inputs:
+            result['rec'].append(
+                self.recognizer(
+                    self.rec_inputs,
+                    return_datasamples=True,)['predictions'])
+
+        # format the prediction dict similar to MMOCRInferencer's output
+        pred = {}
+        inner_pred = {}
+        rec_texts = []
+        if result['rec']:
+            for rec_res in result['rec'][0]:
+                rec_texts.append(rec_res.pred_text.item)
+        inner_pred['rec_texts'] = rec_texts
+
+        inner_pred['det_polygons'] = result['valid_polys']
+
+        pred['predictions'] = [inner_pred]
+
+        return pred

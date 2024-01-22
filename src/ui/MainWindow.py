@@ -282,14 +282,22 @@ class MainWindow(QMainWindow):
                 dlg.exec()
             else:
                 cx, cy, area = get_centroid_poly(box)
-
-                # TODO: placeholder value, need to do recognition
-                value = ""
+                success, cv_img = self.feeder.grab_frame(self.frame_slider.value())
+                pred = self.ocr.recognize_bboxes(cv_img, [box])
+                if pred['predictions'] and pred['predictions'][0]['rec_texts']:
+                    value = pred['predictions'][0]['rec_texts'][0]
+                else:
+                    value = ""
 
                 self.value_tracker_table.add_label(label, cx, cy, area, value,
                                                    self.frame_slider.value())
                 self.value_tracker_table.view_valuetracker(self.frame_slider.value())
                 self.fixed_boxes.add_box(box)
+
+                # update screen... not optimal, double predictions
+                pred = self.ocr.recognize_bboxes(cv_img, self.fixed_boxes.get_boxes())
+                self.video_scene.update_screen(cv_img, pred)
+
 
     def rotation_warning(self):
         dlg = QMessageBox(self)

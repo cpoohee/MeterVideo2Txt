@@ -38,35 +38,6 @@ class QGraphicsPolygonItemHovers (QGraphicsPolygonItem):
         self.setPen(pen)
         self.update()
 
-    # def get_centroid_poly(self):
-    #     """https://en.wikipedia.org/wiki/Centroid#Of_a_polygon"""
-    #     N = self.polygon().size()
-    #     # minimal sanity check
-    #     if N < 3:
-    #         raise ValueError('At least 3 vertices must be passed.')
-    #     sum_A, sum_Cx, sum_Cy = 0, 0, 0
-    #     last_iteration = N - 1
-    #     # from 0 to N-1
-    #     for i in range(N):
-    #         if i != last_iteration:
-    #             shoelace = self.polygon()[i].x() * self.polygon()[i + 1].y() - self.polygon()[i + 1].x() * self.polygon()[i].y()
-    #             sum_A += shoelace
-    #             sum_Cx += (self.polygon()[i].x() + self.polygon()[i + 1].x()) * shoelace
-    #             sum_Cy += (self.polygon()[i].y() + self.polygon()[i + 1].y()) * shoelace
-    #         else:
-    #             # N-1 case (last iteration): substitute i+1 -> 0
-    #             shoelace = self.polygon()[i].x() * self.polygon()[0].y() - self.polygon()[0].x() * self.polygon()[i].y()
-    #             sum_A += shoelace
-    #             sum_Cx += (self.polygon()[i].x() + self.polygon()[0].x()) * shoelace
-    #             sum_Cy += (self.polygon()[i].y() + self.polygon()[0].y()) * shoelace
-    #     A = 0.5 * sum_A
-    #     factor = 1 / (6 * A)
-    #     Cx = factor * sum_Cx
-    #     Cy = factor * sum_Cy
-    #     # returning abs of A is the only difference to
-    #     # the algo from above link
-    #     return Cx, Cy, abs(A)
-
 class VideoScene(QGraphicsScene):
     clicked_signal = pyqtSignal(str, float, float , float, name='clicked_signal')
     def __init__(self):
