@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, \
-    QGraphicsPolygonItem, QGraphicsView
+    QGraphicsPolygonItem, QGraphicsView, QRubberBand, QGraphicsRectItem
 from PyQt5.QtGui import QPen, QPixmap, QImage, QPolygonF
-from PyQt5.QtCore import Qt, QPointF, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, QPointF, pyqtSignal, QRect, QSize, QObject, pyqtSlot
 
 class QGraphicsPolygonItemHovers (QGraphicsPolygonItem):
     def __init__(self,parent=None):
@@ -99,9 +99,10 @@ class VideoScene(QGraphicsScene):
                 poly_item = QGraphicsPolygonItemHovers(qpoly)
                 poly_item.setText(pred_word)
                 self.addItem(poly_item)
-            # self.clicked_signal.connect(self.handle_poly_clicked)
 
     ## todo: click and drag detection to define bounding boxes
+    # https://stackoverflow.com/questions/42692885/qgraphicsview-how-to-make-rubber-band-selection-appear-only-on-left-mouse-butto
+
 
     def get_polygon(self, polys):
         qpoly = QPolygonF()
@@ -115,10 +116,90 @@ class VideoScene(QGraphicsScene):
         image = QImage(cv_img, cv_img.shape[1], cv_img.shape[0], cv_img.shape[1] * 3, QImage.Format_BGR888)
         return QPixmap(image)
 
+class FixedBoxes(QObject):
+    def __init__(self):
+        super(QObject).__init__()
+        self.boxes = []
+        self.polys = []  # reuse existing polygon items in scene for display
+
+    def clear_boxes(self):
+        self.boxes.clear()
+        self.polys.clear()
+
+    def add_box(self, box:QRect):
+        self.boxes.append(box)
+        poly = QGraphicsPolygonItemHovers(self.rect_to_polygon(box))
+        self.polys.append(poly)
+
+    def get_boxes(self):
+        """
+        Bounding boxes for recognisers
+        """
+        return self.boxes
+
+    def get_polygons(self):
+        """
+        For drawing boxes on the scene
+        """
+        return self.polys
+
+    def rect_to_polygon(self, rect:QRect):
+        return QPolygonF(rect.topLeft(),
+                         rect.topRight(),
+                         rect.bottomRight(),
+                         rect.bottomLeft(),
+                         rect.topLeft())  # to close the loop
+
 class GraphicsViewWithMouse (QGraphicsView):
     mouse_moved_signal = pyqtSignal(float, float, name='mouse_moved')
+
+    def __init__(self, scene = None):
+        super(QGraphicsView, self).__init__(scene)
+        self.scene = scene
+        self.fixed_boxes_mode = False
+        self.rubberBand = None
+
+    def enable_fixed_boxes_mode(self, enable):
+        self.fixed_boxes_mode = enable
+        if not self.fixed_boxes_mode:
+            self.clear_rubber_band()
+
+    def clear_rubber_band(self):
+        self.rubberBand.deleteLater()
+        self.rubberBand = None
+
+    def mousePressEvent(self, event):
+        if not self.fixed_boxes_mode:
+            return
+
+        if event.button() == Qt.LeftButton:
+            self.setDragMode(QGraphicsView.RubberBandDrag)
+
+            self.origin = event.pos()
+            if not self.rubberBand:
+                self.rubberBand = QRubberBand(QRubberBand.Rectangle, self)
+            self.rubberBand.setGeometry(QRect(self.origin, QSize()))
+            self.rubberBand.show()
+
+    def mouseReleaseEvent(self, event):
+        if not self.fixed_boxes_mode:
+            return
+
+        if event.button() == Qt.LeftButton:
+            self.setDragMode(QGraphicsView.NoDrag)
+
+            if self.rubberBand:
+                selected_area = QRect(self.origin, event.pos())
+                selected_area = self.mapToScene(selected_area)
+
+                self.clear_rubber_band()
 
     def mouseMoveEvent(self, event):
         relative_pos = self.mapToScene(event.pos())
         self.mouse_moved_signal.emit( relative_pos.x(), relative_pos.y())
         super().mouseMoveEvent(event)
+
+        # update rubber band if mouse is dragging
+        if self.dragMode():
+            if self.rubberBand:
+                self.rubberBand.setGeometry(QRect(self.origin, event.pos()))

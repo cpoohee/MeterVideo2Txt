@@ -69,10 +69,10 @@ class MainWindow(QMainWindow):
 
         # Display video frames using VideoScene
         self.video_scene = VideoScene()
-        view = GraphicsViewWithMouse(self.video_scene)
-        view.setMouseTracking(True)
-        view.mouse_moved_signal.connect(self.handle_video_mousemove)
-        layout.addWidget(view, stretch = 10)
+        self.view = GraphicsViewWithMouse(self.video_scene)
+        self.view.setMouseTracking(True)
+        self.view.mouse_moved_signal.connect(self.handle_video_mousemove)
+        layout.addWidget(self.view, stretch = 10)
         self.video_scene.clicked_signal.connect(self.handle_poly_clicked)
 
         # slider stuff
@@ -180,6 +180,8 @@ class MainWindow(QMainWindow):
             if self.det_action_dict[det].isChecked():
                 self.ocr.set_detector(det)
                 _ = self.refresh_video()
+
+                self.view.enable_fixed_boxes_mode(det == 'Fixed Area')
 
     def rec_selected(self):
         for rec in self.rec_action_dict:

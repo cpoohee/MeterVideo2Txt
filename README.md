@@ -22,6 +22,7 @@ TODO
 
 ## TODO list
 - Add mode to choose between tracking mode or fixed area mode.
+- improve on screen instructions/ hints
 - Allow editing/repositioning of tracked Labels.
 - Add threshold for tracking nearest polygon in tracking mode. 
 - Add kalman filter for tracking between points

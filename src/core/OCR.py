@@ -29,6 +29,7 @@ class OCR:
         if rec is not None:
             self.set_recognizer(self.rec)
     def set_detector(self, det='MaskRCNN_IC15'):
+        self.det = det
         if det == 'Fixed Area':
             self.detector = None
         else:
@@ -37,6 +38,7 @@ class OCR:
             self.detector = TextDetInferencer(weights=models[det])
 
     def set_recognizer(self, rec='svtr-base'):
+        self.rec = rec
         if not self.check_model_exists(rec):
             self.download_model(rec)
         self.recognizer = TextRecInferencer(model=model_config[rec], weights=models[rec])
