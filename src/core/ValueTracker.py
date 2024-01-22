@@ -48,8 +48,9 @@ class ValueTracker:
                 # find nearest point match in pred
                 min_dist_idx = self.nearest_point(prev_cx, prev_cy, qpoly_list)
                 # assign match
-                new_cx, new_cy, new_area = qpoly_list[min_dist_idx]
-                self.frame[frame_i][label] = (new_cx, new_cy, new_area, pred_value_list[min_dist_idx])
+                if min_dist_idx:
+                    new_cx, new_cy, new_area = qpoly_list[min_dist_idx]
+                    self.frame[frame_i][label] = (new_cx, new_cy, new_area, pred_value_list[min_dist_idx])
                 # may use area as matching criteria next time
 
     def nearest_point(self, cx, cy, points):

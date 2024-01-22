@@ -135,8 +135,9 @@ class GraphicsViewWithMouse (QGraphicsView):
             self.clear_rubber_band()
 
     def clear_rubber_band(self):
-        self.rubberBand.deleteLater()
-        self.rubberBand = None
+        if self.rubberBand:
+            self.rubberBand.deleteLater()
+            self.rubberBand = None
 
     def mousePressEvent(self, event):
         if not self.fixed_boxes_mode:
