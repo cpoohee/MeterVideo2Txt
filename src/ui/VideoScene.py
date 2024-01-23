@@ -21,7 +21,7 @@ class QGraphicsPolygonItemHovers (QGraphicsPolygonItem):
     def hoverLeaveEvent(self, event):
         self.set_unhighlighted()
 
-    def mousePressEvent(self, event, QGraphicsSceneMouseEvent=None):
+    def mouseDoubleClickEvent(self, event, QGraphicsSceneMouseEvent=None):
         if event.button() == Qt.LeftButton:
             cx, cy, area = get_centroid_poly(self.polygon())
             self.scene().clicked_signal.emit(self.text, cx, cy, area)

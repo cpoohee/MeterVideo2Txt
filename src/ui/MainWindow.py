@@ -69,11 +69,17 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
 
         # Display video frames using VideoScene
+        self.video_group_box = QGroupBox("")
+        self.video_layout = QVBoxLayout()
         self.video_scene = VideoScene()
         self.view = GraphicsViewWithMouse(self.video_scene)
         self.view.setMouseTracking(True)
         self.view.mouse_moved_signal.connect(self.handle_video_mousemove)
-        layout.addWidget(self.view, stretch = 10)
+        self.video_layout.addWidget(self.view)
+        self.video_intruction = QLabel()
+        self.video_layout.addWidget(self.video_intruction)
+        self.video_group_box.setLayout(self.video_layout)
+        layout.addWidget(self.video_group_box, stretch = 10)
         self.video_scene.clicked_signal.connect(self.handle_poly_clicked)
 
         self.fixed_boxes = FixedBoxes() # for tracking fixed boxed detection
@@ -178,22 +184,35 @@ class MainWindow(QMainWindow):
             if not self.ocr.check_model_exists(model):
                 self.ocr.download_model(model)
 
-    def det_selected(self):
-        # find checked
+    def what_det_selected(self):
         for det in self.det_action_dict:
             if self.det_action_dict[det].isChecked():
-                self.ocr.set_detector(det)
-                _ = self.refresh_video()
+                return det
 
-                if det != 'Fixed Area':
-                    self.fixed_boxes.clear_boxes()
-                self.view.enable_fixed_boxes_mode(det == 'Fixed Area')
-
-    def rec_selected(self):
+    def what_rec_selected(self):
         for rec in self.rec_action_dict:
             if self.rec_action_dict[rec].isChecked():
-                self.ocr.set_recognizer(rec)
-                _ = self.refresh_video()
+                return rec
+
+    def det_selected(self):
+        det = self.what_det_selected()
+        self.ocr.set_detector(det)
+        _ = self.refresh_video()
+
+        if det != 'Fixed Area':
+            self.fixed_boxes.clear_boxes()
+        self.view.enable_fixed_boxes_mode(det == 'Fixed Area')
+
+        # update det/ rec selected text
+        self.update_det_rec_text()
+
+    def rec_selected(self):
+        rec = self.what_rec_selected()
+        self.ocr.set_recognizer(rec)
+        _ = self.refresh_video()
+
+        # update det/ rec selected text
+        self.update_det_rec_text()
 
     def load_video(self):
         options = QFileDialog.Options()
@@ -222,6 +241,22 @@ class MainWindow(QMainWindow):
             self.value_tracker_table.reset_valuetracker_framesize(self.feeder.max_frame())
 
             self.slider_released()
+
+            #update det/ rec selected text
+            self.update_det_rec_text()
+
+    def update_det_rec_text(self):
+        det = self.what_det_selected()
+        rec = self.what_rec_selected()
+        header = f'Detector: {det}, Recognizer: {rec}'
+        self.video_group_box.setTitle(header)
+
+        if det == 'Fixed Area':
+            instruction_text = 'Click and drag to label an area for text tracking.'
+        else:
+            instruction_text = 'Double click on the detected text for tracking.'
+
+        self.video_intruction.setText(instruction_text)
 
     @pyqtSlot(str, float, float, float)
     def handle_poly_clicked(self, value, cx, cy, area):
