@@ -20,14 +20,20 @@ class MainWindow(QMainWindow):
         self.orientation_menu = self.menu.addMenu("Orientation")
 
         # Load Video Action
-        load_action = QAction("Load Video", self)
+        load_action = QAction("Load video", self)
         load_action.triggered.connect(self.load_video)
         self.file_menu.addAction(load_action)
+
+        # close video Action
+        self.close_action = QAction("Close video", self)
+        self.close_action.setDisabled(True)
+        self.close_action.triggered.connect(self.close_video)
+        self.file_menu.addAction(self.close_action)
 
         # Exit QAction
         exit_action = QAction("Exit", self)
         exit_action.setShortcut(QKeySequence.Quit)
-        exit_action.triggered.connect(self.close)
+        exit_action.triggered.connect(self.quit)
         self.file_menu.addAction(exit_action)
 
         self.rotate_none_action = QAction("No Rotation", self)
@@ -245,7 +251,42 @@ class MainWindow(QMainWindow):
             #update det/ rec selected text
             self.update_det_rec_text()
 
-    def update_det_rec_text(self):
+            self.close_action.setEnabled(True)
+
+    def close_video(self):
+        self.frame_slider.blockSignals(True)
+        self.slider_spinbox.blockSignals(True)
+        self.frame_slider.setTickPosition(0)
+        self.frame_slider.setMaximum(1)
+        self.frame_slider.setDisabled(True)
+        self.slider_spinbox.setValue(0)
+        self.slider_spinbox.setMaximum(1)
+        self.slider_spinbox.setDisabled(True)
+        self.frame_slider.blockSignals(False)
+        self.slider_spinbox.blockSignals(False)
+
+        self.rotation_group.setEnabled(False)
+        self.buttons_widget.setEnabled(False)
+        self.detector_group.setEnabled(False)
+        self.recognizer_group.setEnabled(False)
+
+        self.update_det_rec_text(clear_text=True)
+        self.feeder.close_video()
+        self.video_scene.clear()
+        self.value_tracker_table.reset_valuetracker()
+
+        self.close_action.setDisabled(True)
+
+    def quit(self):
+        self.close_video()
+        self.close()
+
+    def update_det_rec_text(self, clear_text=False):
+        if clear_text:
+            self.video_group_box.setTitle("")
+            self.video_intruction.setText("")
+            return
+
         det = self.what_det_selected()
         rec = self.what_rec_selected()
         header = f'Detector: {det}, Recognizer: {rec}'

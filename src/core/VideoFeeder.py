@@ -18,6 +18,15 @@ class VideoFeeder:
         self.cap = cv2.VideoCapture(video_input)
         self.frame_count = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+
+    def close_video(self):
+        if self.cap is not None:
+            self.cap.release()
+            self.cap = None
+        self.frame_count = None
+        self.fps = None
+        self.rotate = None
+
     def set_rotate(self, rotate):
         """
 

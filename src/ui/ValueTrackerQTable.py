@@ -13,7 +13,10 @@ class ValueTrackerQTable(QTableWidget):
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
 
-    def reset_valuetracker_framesize(self, frame_size):
+    def reset_valuetracker(self):
+        self.reset_valuetracker_framesize(frame_size=1)
+
+    def reset_valuetracker_framesize(self, frame_size=1):
         self.valuetracker = ValueTracker(frame_size)
         self.view_valuetracker(0)
 
